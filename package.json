@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "<aside>\r ⚠️ A partir desse desafio **não** vamos informar detalhadamente rotas e propriedades dos registros a serem criadas, mas sim, as regras e requisitos que a API deve ter.",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "fastify": "^4.17.0",
-    "knex": "^2.4.2"
+    "knex": "^2.4.2",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "^1.2.0",

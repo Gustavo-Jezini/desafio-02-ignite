@@ -8,7 +8,7 @@ declare module 'knex/types/tables' {
       title: string
       description: string
       date: string
-      isOnDiet: boolean
+      isOnDiet: number
       user_id: string
     }
   }

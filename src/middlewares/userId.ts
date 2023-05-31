@@ -1,12 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export async function SessionIdValidation(
+export async function UserIdValidation(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const sessionId = request.cookies.sessionId
+  const userId = request.cookies.userId
 
-  if (!sessionId) {
+  if (!userId) {
     return reply.status(401).send('Unathorized!')
   }
 }

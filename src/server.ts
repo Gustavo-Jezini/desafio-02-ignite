@@ -10,7 +10,7 @@ app.register(cookie)
 
 app.register(usersRoutes, { prefix: '/users' })
 
-app.register(mealsRoutes, { prefix: '/users/:user_id/meals' })
+app.register(mealsRoutes, { prefix: '/meals' })
 
 app
   .listen({

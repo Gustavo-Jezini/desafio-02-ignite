@@ -67,7 +67,33 @@ export async function mealsRoutes(app: FastifyInstance) {
   })
 
   // Deve ser possível editar uma refeição, podendo alterar todos os dados acima
-  app.put('/', async (request, reply) => {})
+  app.put('/:id', async (request, reply) => {
+    const getMealsParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const { id } = getMealsParamsSchema.parse(request.params)
+
+    const updateMealsSchema = z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.string(),
+      isOnDiet: z.boolean(),
+    })
+
+    const { title, description, date, isOnDiet } = updateMealsSchema.parse(
+      request.body,
+    )
+
+    await knex('meals').where({ id }).update({
+      title,
+      description,
+      date,
+      isOnDiet,
+    })
+
+    reply.status(204).send()
+  })
 
   // Deve ser possível recuperar as métricas de um usuário
   app.get('/summary', async (request, reply) => {})

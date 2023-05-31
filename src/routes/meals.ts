@@ -19,11 +19,10 @@ export async function mealsRoutes(app: FastifyInstance) {
       const createMealsSchema = z.object({
         title: z.string(),
         description: z.string(),
-        date: z.string(),
         isOnDiet: z.number(),
       })
 
-      const { title, description, date, isOnDiet } = createMealsSchema.parse(
+      const { title, description, isOnDiet } = createMealsSchema.parse(
         request.body,
       )
 
@@ -31,7 +30,6 @@ export async function mealsRoutes(app: FastifyInstance) {
         id: randomUUID(),
         title,
         description,
-        date,
         isOnDiet,
         user_id: userId,
       })
@@ -109,18 +107,16 @@ export async function mealsRoutes(app: FastifyInstance) {
       const updateMealsSchema = z.object({
         title: z.string(),
         description: z.string(),
-        date: z.string(),
         isOnDiet: z.number(),
       })
 
-      const { title, description, date, isOnDiet } = updateMealsSchema.parse(
+      const { title, description, isOnDiet } = updateMealsSchema.parse(
         request.body,
       )
 
       await knex('meals').where({ id }).update({
         title,
         description,
-        date,
         isOnDiet,
       })
 
@@ -134,10 +130,31 @@ export async function mealsRoutes(app: FastifyInstance) {
 
     const meals = await knex('meals').where({ user_id: userId }).select()
 
+    let biggestSequency = 0
+    let sequency = 0
+    let dataAtual: string = ''
+
+    meals.forEach((meal) => {
+      const dataRefeicao = new Date(meal.date).toLocaleDateString()
+
+      if (dataAtual !== dataRefeicao) {
+        sequency = 0
+        dataAtual = dataRefeicao
+      }
+
+      if (meal.isOnDiet === 1) {
+        sequency++
+        biggestSequency = Math.max(biggestSequency, sequency)
+      } else {
+        sequency = 0
+      }
+    })
+
     const summary = {
       totalMeals: meals.length,
       mealsOnDiet: meals.filter((meal) => meal.isOnDiet === 1).length,
       mealsOutDiet: meals.filter((meal) => meal.isOnDiet === 0).length,
+      biggestSequency,
     }
 
     return reply.status(200).send({

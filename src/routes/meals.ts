@@ -2,36 +2,56 @@ import { randomUUID } from 'crypto'
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { knex } from '../database'
+import { SessionIdValidation } from '../middlewares/userId'
 
 export async function mealsRoutes(app: FastifyInstance) {
   // Deve ser possivel criar refeições
-  app.post('/', async (request, reply) => {
-    const createMealsSchema = z.object({
-      title: z.string(),
-      description: z.string(),
-      date: z.string(),
-      isOnDiet: z.boolean(),
-    })
+  app.post(
+    '/',
 
-    const { title, description, date, isOnDiet } = createMealsSchema.parse(
-      request.body,
-    )
+    {
+      preHandler: [SessionIdValidation],
+    },
 
-    await knex('meals').insert({
-      id: randomUUID(),
-      title,
-      description,
-      date,
-      isOnDiet,
-      user_id: 'c9bae7d7-5a62-4b5f-b4e8-2ffe53eb1423',
-    })
+    async (request, reply) => {
+      const getUserIdParamsSchema = z.object({
+        user_id: z.string().uuid(),
+      })
 
-    reply.status(201).send()
-  })
+      const { user_id: userId } = getUserIdParamsSchema.parse(request.params)
+
+      const createMealsSchema = z.object({
+        title: z.string(),
+        description: z.string(),
+        date: z.string(),
+        isOnDiet: z.boolean(),
+      })
+
+      const { title, description, date, isOnDiet } = createMealsSchema.parse(
+        request.body,
+      )
+
+      await knex('meals').insert({
+        id: randomUUID(),
+        title,
+        description,
+        date,
+        isOnDiet,
+        user_id: userId,
+      })
+
+      reply.status(201).send()
+    },
+  )
 
   // Deve ser possível listar todas as refeições de um usuário
   app.get('/', async (request, reply) => {
-    const meals = await knex('meals').select()
+    const getUserIdParamsSchema = z.object({
+      user_id: z.string().uuid(),
+    })
+    const { user_id: userId } = getUserIdParamsSchema.parse(request.params)
+
+    const meals = await knex('meals').where({ user_id: userId }).select()
 
     reply.status(200).send({
       meals,
